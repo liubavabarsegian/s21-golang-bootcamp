@@ -22,7 +22,6 @@ type ChosenFlags struct {
 func Call() {
 	var flags ChosenFlags
 	parseFlags(&flags)
-	fmt.Println(noFlags(flags))
 	if noFlags(flags) {
 		chooseAllFlags(&flags)
 	}
@@ -38,6 +37,7 @@ func parseFlags(flags *ChosenFlags) {
 	flag.BoolVar(&flags.Mode, "mode", false, "Mode Flag")
 	flag.BoolVar(&flags.Median, "median", false, "Median Flag")
 	flag.BoolVar(&flags.StandartDeviation, "sd", false, "Standart Deviation Flag")
+	flag.Parse()
 }
 
 func noFlags(flags ChosenFlags) bool {
@@ -57,20 +57,21 @@ func scanNumbers() []int {
 
 	fmt.Println("Input numeric values [-100000, 100000] by Enter. Enter empty line to stop inputting args.")
 	for {
+		buf = ""
 		fmt.Scanln(&buf)
 		if buf == "" {
 			break
 		}
 		num, err := strconv.Atoi(buf)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 		if num > MAX_NUMBER || num < MIN_NUMBER {
 			fmt.Println("Input number out of range. Please, input numbers between -100000 and 100000")
-			break
+			continue
 		}
 		numbers = append(numbers, num)
-		buf = ""
 	}
 	return numbers
 }
