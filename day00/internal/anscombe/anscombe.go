@@ -15,7 +15,7 @@ func Mean(numbers []int) float64 {
 
 func Median(numbers []int) float64 {
 	sort.Ints(numbers)
-	if len(numbers)%2 == 0 {
+	if len(numbers)%2 == 1 {
 		return float64(numbers[len(numbers)/2])
 	} else {
 		return (float64(numbers[len(numbers)/2]) + float64(numbers[len(numbers)/2-1])) / 2
@@ -32,8 +32,8 @@ func Mode(numbers []int) int {
 		}
 	}
 
-	var mode int
 	occurrence := numbers_occurences[numbers[0]]
+	mode := numbers[0]
 	for key, value := range numbers_occurences {
 		if occurrence < value {
 			occurrence = value

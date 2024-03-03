@@ -21,16 +21,19 @@ type ChosenFlags struct {
 
 func Call() {
 	var flags ChosenFlags
-	parseFlags(flags)
+	parseFlags(&flags)
+	fmt.Println(noFlags(flags))
 	if noFlags(flags) {
 		chooseAllFlags(&flags)
 	}
 
 	numbers := scanNumbers()
-	printStats(numbers, flags)
+	if len(numbers) > 0 {
+		printStats(numbers, flags)
+	}
 }
 
-func parseFlags(flags ChosenFlags) {
+func parseFlags(flags *ChosenFlags) {
 	flag.BoolVar(&flags.Mean, "mean", false, "Mean Flag")
 	flag.BoolVar(&flags.Mode, "mode", false, "Mode Flag")
 	flag.BoolVar(&flags.Median, "median", false, "Median Flag")
@@ -74,11 +77,11 @@ func scanNumbers() []int {
 
 func printStats(numbers []int, flags ChosenFlags) {
 	if flags.Mean {
-		fmt.Printf("Mean: %f\n", anscombe.Mean(numbers))
+		fmt.Printf("Mean: %.2f\n", anscombe.Mean(numbers))
 	}
 
 	if flags.Median {
-		fmt.Printf("Median: %f\n", anscombe.Median(numbers))
+		fmt.Printf("Median: %.2f\n", anscombe.Median(numbers))
 	}
 
 	if flags.Mean {
@@ -86,6 +89,6 @@ func printStats(numbers []int, flags ChosenFlags) {
 	}
 
 	if flags.Mean {
-		fmt.Printf("Standart Deviation: %f\n", anscombe.StandartDeviation(numbers))
+		fmt.Printf("Standart Deviation: %.2f\n", anscombe.StandartDeviation(numbers))
 	}
 }
