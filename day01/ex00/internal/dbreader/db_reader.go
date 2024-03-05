@@ -3,16 +3,20 @@ package dbreader
 import (
 	"encoding/xml"
 	"fmt"
-	"os"
 	"path/filepath"
 	"readDB/config"
 )
 
 type DBReader interface {
-	readDB(file *os.File) (Cakes, error)
+	readDB(filename string) (Cakes, error)
 }
+
+type DBConverter interface {
+	Convert(cakes Cakes)
+}
+
 type Cakes struct {
-	Recipes xml.Name `json:"-" xml:"recipes"`
+	XMLName xml.Name `json:"-" xml:"recipes"`
 	Cakes   []Cake   `json:"cake" xml:"cake"`
 }
 
@@ -24,7 +28,7 @@ type Cake struct {
 
 type Ingredient struct {
 	Name  string `json:"ingredient_name" xml:"itemname"`
-	Count int    `json:"ingredient_count" xml:"itemcount"`
+	Count string `json:"ingredient_count" xml:"itemcount"`
 	Unit  string `json:"ingredient_unit" xml:"itemunit"`
 }
 
@@ -33,20 +37,17 @@ func Read() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	file, err := os.Open(filename)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fileExtension := filepath.Ext(filename)
-		var reader DBReader
-		switch fileExtension {
-		case ".json":
-			reader = JSONReader{}
-		case ".xml":
-			reader = XMLReader{}
-		}
-		reader.readDB(file)
-		defer file.Close()
+	fileExtension := filepath.Ext(filename)
+	var reader DBReader
+	var converter DBConverter
+	switch fileExtension {
+	case ".json":
+		reader = JSONReader{}
+		converter = JSONconverter{}
+	case ".xml":
+		reader = XMLReader{}
+		converter = XMLconverter{}
 	}
+	cakes, _ := reader.readDB(filename)
+	converter.Convert(cakes)
 }
