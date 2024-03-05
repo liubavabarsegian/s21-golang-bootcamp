@@ -1,6 +1,6 @@
 package main
 
-import "readDB/internal/dbreader"
+import dbreader "day01/pkg/db_reader"
 
 func main() {
 	dbreader.Read()

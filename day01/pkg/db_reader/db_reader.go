@@ -1,10 +1,10 @@
 package dbreader
 
 import (
+	"day01/dbReader/config"
 	"encoding/xml"
 	"fmt"
 	"path/filepath"
-	"readDB/config"
 )
 
 type DBReader interface {
