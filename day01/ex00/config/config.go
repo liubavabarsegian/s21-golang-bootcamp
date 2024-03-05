@@ -7,7 +7,7 @@ import (
 
 var NoFilenameError = errors.New("Передайте название файла через флаг -f")
 
-func GetDBFileName() (DBFileName string, err error) {
+func CheckDBFileName() (DBFileName string, err error) {
 	flag.StringVar(&DBFileName, "f", "", "DataBase file name")
 	flag.Parse()
 
