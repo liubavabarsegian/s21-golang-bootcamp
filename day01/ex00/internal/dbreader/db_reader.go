@@ -8,7 +8,7 @@ import (
 )
 
 type DBReader interface {
-	readDB(filename string) (Cakes, error)
+	ReadDB(filename string) (Cakes, error)
 }
 
 type DBConverter interface {
@@ -36,6 +36,7 @@ func Read() {
 	filename, err := config.CheckDBFileName()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	fileExtension := filepath.Ext(filename)
 	var reader DBReader
@@ -47,7 +48,12 @@ func Read() {
 	case ".xml":
 		reader = XMLReader{}
 		converter = XMLconverter{}
+	default:
+		fmt.Println("Unsupported file format:", fileExtension)
+		return
 	}
-	cakes, _ := reader.readDB(filename)
-	converter.Convert(cakes)
+	cakes, err := reader.ReadDB(filename)
+	if err == nil {
+		converter.Convert(cakes)
+	}
 }

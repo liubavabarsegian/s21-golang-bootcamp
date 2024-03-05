@@ -15,11 +15,13 @@ type JSONReader struct {
 type JSONconverter struct {
 }
 
-func (reader JSONReader) readDB(filename string) (Cakes, error) {
+func (reader JSONReader) ReadDB(filename string) (Cakes, error) {
 	file, err := os.Open(filename)
-	if err == nil {
-		defer file.Close()
+	if err != nil {
+		fmt.Println(err)
+		return reader.cakes, err
 	}
+	defer file.Close()
 
 	byteValue, _ := io.ReadAll(file)
 	json.Unmarshal(byteValue, &reader.cakes)

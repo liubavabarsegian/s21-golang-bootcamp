@@ -14,5 +14,5 @@ func CheckDBFileName() (DBFileName string, err error) {
 	if DBFileName == "" {
 		return "", NoFilenameError
 	}
-	return
+	return DBFileName, err
 }

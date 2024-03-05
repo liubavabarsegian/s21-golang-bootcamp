@@ -18,7 +18,7 @@ type XMLtoJSON struct {
 type XMLconverter struct {
 }
 
-func (reader XMLReader) readDB(filename string) (Cakes, error) {
+func (reader XMLReader) ReadDB(filename string) (Cakes, error) {
 	file, err := os.Open(filename)
 	if err == nil {
 		defer file.Close()
