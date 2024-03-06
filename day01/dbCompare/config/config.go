@@ -3,17 +3,19 @@ package config
 import (
 	"errors"
 	"flag"
+	"fmt"
 )
 
-var NoFilenameError = errors.New("No such file")
+func GetFiles() (OldDB string, NewDB string, err error) {
+	var NoFilenameError = errors.New("no such file")
 
-func CheckDBFileName() (OldDB string, NewDB string, err error) {
-	flag.StringVar(&OldDB, "old", "", "")
-	flag.StringVar(&NewDB, "new", "", "")
+	flag.StringVar(&OldDB, "old", "", "Old database file name")
+	flag.StringVar(&NewDB, "new", "", "New database file name")
 	flag.Parse()
 
 	if OldDB == "" || NewDB == "" {
+		fmt.Println(NoFilenameError)
 		return "", "", NoFilenameError
 	}
-	return
+	return OldDB, NewDB, nil
 }

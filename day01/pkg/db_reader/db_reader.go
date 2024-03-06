@@ -32,27 +32,44 @@ type Ingredient struct {
 	Unit  string `json:"ingredient_unit" xml:"itemunit"`
 }
 
-func Read() {
+func Call() {
 	filename, err := config.CheckDBFileName()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	ConvertFile(filename)
+}
+
+func GetCakes(filename string) (cakes Cakes, err error) {
 	fileExtension := filepath.Ext(filename)
 	var reader DBReader
-	var converter DBConverter
 	switch fileExtension {
 	case ".json":
 		reader = JSONReader{}
-		converter = JSONconverter{}
 	case ".xml":
 		reader = XMLReader{}
+	default:
+		fmt.Println("Unsupported file format:", fileExtension)
+		return
+	}
+	cakes, err = reader.ReadDB(filename)
+	return cakes, err
+}
+
+func ConvertFile(filename string) {
+	fileExtension := filepath.Ext(filename)
+	var converter DBConverter
+	switch fileExtension {
+	case ".json":
+		converter = JSONconverter{}
+	case ".xml":
 		converter = XMLconverter{}
 	default:
 		fmt.Println("Unsupported file format:", fileExtension)
 		return
 	}
-	cakes, err := reader.ReadDB(filename)
+	cakes, err := GetCakes(filename)
 	if err == nil {
 		converter.Convert(cakes)
 	}
