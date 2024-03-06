@@ -8,14 +8,14 @@ import (
 )
 
 type DBReader interface {
-	ReadDB(filename string) (Cakes, error)
+	ReadDB(filename string) (Recipes, error)
 }
 
 type DBConverter interface {
-	Convert(cakes Cakes)
+	Convert(cakes Recipes)
 }
 
-type Cakes struct {
+type Recipes struct {
 	XMLName xml.Name `json:"-" xml:"recipes"`
 	Cakes   []Cake   `json:"cake" xml:"cake"`
 }
@@ -41,7 +41,7 @@ func Call() {
 	ConvertFile(filename)
 }
 
-func GetCakes(filename string) (cakes Cakes, err error) {
+func GetCakes(filename string) (cakes Recipes, err error) {
 	fileExtension := filepath.Ext(filename)
 	var reader DBReader
 	switch fileExtension {

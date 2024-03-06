@@ -9,7 +9,7 @@ import (
 )
 
 type XMLReader struct {
-	cakes Cakes
+	cakes Recipes
 }
 
 type XMLtoJSON struct {
@@ -18,7 +18,7 @@ type XMLtoJSON struct {
 type XMLconverter struct {
 }
 
-func (reader XMLReader) ReadDB(filename string) (Cakes, error) {
+func (reader XMLReader) ReadDB(filename string) (Recipes, error) {
 	file, err := os.Open(filename)
 	if err == nil {
 		defer file.Close()
@@ -29,7 +29,7 @@ func (reader XMLReader) ReadDB(filename string) (Cakes, error) {
 	return reader.cakes, err
 }
 
-func (converter XMLconverter) Convert(cakes Cakes) {
-	json_cakes, _ := json.MarshalIndent(cakes, "", "    ")
-	fmt.Println(string(json_cakes))
+func (converter XMLconverter) Convert(cakes Recipes) {
+	jsonCakes, _ := json.MarshalIndent(cakes, "", "    ")
+	fmt.Println(string(jsonCakes))
 }
