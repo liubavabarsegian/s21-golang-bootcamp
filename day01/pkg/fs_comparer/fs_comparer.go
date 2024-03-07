@@ -8,8 +8,16 @@ import (
 )
 
 func Compare(newSnapshotName string, oldSnapshotName string) {
-	newFiles := GetSnapshotFiles(newSnapshotName)
-	oldFiles := GetSnapshotFiles(oldSnapshotName)
+	newFiles, err := GetSnapshotFiles(newSnapshotName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	oldFiles, err := GetSnapshotFiles(oldSnapshotName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	for _, value := range newFiles {
 		if !slices.Contains(oldFiles, value) {
@@ -24,7 +32,7 @@ func Compare(newSnapshotName string, oldSnapshotName string) {
 	}
 }
 
-func GetSnapshotFiles(filename string) (fileNames []string) {
+func GetSnapshotFiles(filename string) (fileNames []string, err error) {
 	file, _ := os.Open(filename)
 	defer file.Close()
 
@@ -33,8 +41,6 @@ func GetSnapshotFiles(filename string) (fileNames []string) {
 		fileName := scanner.Text()
 		fileNames = append(fileNames, fileName)
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading new file:", err)
-	}
+	err = scanner.Err()
 	return
 }
