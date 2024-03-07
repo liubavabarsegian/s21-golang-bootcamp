@@ -21,13 +21,13 @@ func Compare(newSnapshotName string, oldSnapshotName string) {
 
 	for _, value := range newFiles {
 		if !slices.Contains(oldFiles, value) {
-			fmt.Println("ADDED ", value)
+			fmt.Println("REMOVED ", value)
 		}
 	}
 
 	for _, value := range oldFiles {
 		if !slices.Contains(newFiles, value) {
-			fmt.Println("REMOVED ", value)
+			fmt.Println("ADDED ", value)
 		}
 	}
 }
