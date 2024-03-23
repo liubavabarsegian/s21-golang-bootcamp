@@ -8,26 +8,25 @@ import (
 )
 
 func IterateOverEntities(arguments config.Args, flags config.ChosenFlags) {
-	err := filepath.Walk(arguments.DirPath,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			switch {
-			case flags.OnlySymlinks && isSymlink(info):
-				printPath(path, info)
-			case flags.OnlyDirs && info.IsDir():
-				printPath(path, info)
-			case flags.OnlySpecificExt && filepath.Ext(path) == ("."+arguments.Extension):
-				printPath(path, info)
-			case !flags.OnlySpecificExt && flags.OnlyFiles && isFile(info):
-				printPath(path, info)
-			case noFlags(flags):
-				printPath(path, info)
-			}
+	err := filepath.Walk(arguments.DirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return nil
-		})
+		}
+
+		switch {
+		case flags.OnlySymlinks && isSymlink(info):
+			printPath(path, info)
+		case flags.OnlyDirs && info.IsDir():
+			printPath(path, info)
+		case flags.OnlySpecificExt && filepath.Ext(path) == ("."+arguments.Extension):
+			printPath(path, info)
+		case !flags.OnlySpecificExt && flags.OnlyFiles && isFile(info):
+			printPath(path, info)
+		case noFlags(flags):
+			printPath(path, info)
+		}
+		return nil
+	})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -47,12 +46,14 @@ func noFlags(flags config.ChosenFlags) bool {
 
 func printPath(path string, info os.FileInfo) {
 	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-		targetPath, err := os.Readlink(path)
-		if err != nil {
-			fmt.Println(err)
+		targetPath, _ := os.Readlink(path)
+		file, err := os.Open(path)
+		if err == nil {
+			defer file.Close()
 		} else {
-			fmt.Println(path, "->", targetPath)
+			targetPath = "[broken]"
 		}
+		fmt.Println(path, "->", targetPath)
 	} else {
 		fmt.Println(path)
 	}
