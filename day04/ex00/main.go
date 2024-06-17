@@ -19,7 +19,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "candies/go"
+	sw "candies/ex00/go"
 )
 
 func main() {
