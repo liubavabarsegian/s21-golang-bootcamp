@@ -2,10 +2,12 @@ package main
 
 import (
 	"BuyCandy/internal/api/request"
+	"BuyCandy/internal/api/response"
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,7 +30,8 @@ func main() {
 	}
 	rootCAPool := x509.NewCertPool()
 	rootCAPool.AppendCertsFromPEM(rootCA)
-	log.Println("RootCA loaded")
+	// UNCOMMENT FOR TLS LOGS
+	// log.Println("RootCA loaded")
 
 	// configure TLS on http.Client
 	c := http.Client{
@@ -48,15 +51,16 @@ func main() {
 				},
 				// print  information about the certificate received from server
 				VerifyPeerCertificate: func(rawCerts [][]byte, chains [][]*x509.Certificate) error {
-					if len(chains) > 0 {
-						fmt.Println("Verified certificate chain from peer:")
-						for _, v := range chains {
-							for i, cert := range v {
-								fmt.Printf("  Cert %d:\n", i)
-								fmt.Printf(CertificateInfo(cert))
-							}
-						}
-					}
+					// UNCOMMENT FOR TLS LOGS
+					// if len(chains) > 0 {
+					// fmt.Println("Verified certificate chain from peer:")
+					// for _, v := range chains {
+					// 	for i, cert := range v {
+					// 		fmt.Printf("  Cert %d:\n", i)
+					// 		fmt.Printf(CertificateInfo(cert))
+					// 	}
+					// }
+					// }
 					return nil
 				},
 			},
@@ -65,12 +69,8 @@ func main() {
 
 	// prepare a request
 	u := url.URL{Scheme: "https", Host: "candy-server:8080", Path: "buy_candy"}
-	requestBody := request.BuyCandyRequestBody{
-		CandyCount: 2,
-		CandyType:  "AA",
-		Money:      31,
-	}
 
+	requestBody := ParseRequestWithFlags()
 	body, _ := json.Marshal(requestBody)
 	r, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(body))
 	if err != nil {
@@ -82,23 +82,41 @@ func main() {
 	if data, err = callServer(c, r); err != nil {
 		log.Fatal(err)
 	}
-	log.Println(data)
+	fmt.Println(data)
+}
+
+func ParseRequestWithFlags() request.BuyCandyRequestBody {
+	var requestBody request.BuyCandyRequestBody
+	flag.StringVar(&requestBody.CandyType, "k", "", "Candy type")
+	flag.IntVar(&requestBody.CandyCount, "c", 0, "Candy count")
+	flag.IntVar(&requestBody.Money, "m", 0, "Money")
+	flag.Parse()
+
+	return requestBody
 }
 
 func callServer(c http.Client, r *http.Request) (string, error) {
-	response, err := c.Do(r)
+	serverResponse, err := c.Do(r)
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	defer serverResponse.Body.Close()
 
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", err
+	if serverResponse.StatusCode == http.StatusCreated {
+		var responseBody response.ThanksResponse
+		err := json.NewDecoder(serverResponse.Body).Decode(&responseBody)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("Thank you! Your change is %d", responseBody.Change), nil
+	} else {
+		var errorBody response.ErrorResponse
+		err := json.NewDecoder(serverResponse.Body).Decode(&errorBody)
+		if err != nil {
+			return "", err
+		}
+		return errorBody.Error_, nil
 	}
-
-	// print the data
-	return string(data), nil
 }
 
 func CertificateInfo(cert *x509.Certificate) string {

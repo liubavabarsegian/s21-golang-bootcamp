@@ -1,11 +1,11 @@
 package response
 
-type InlineResponse201 struct {
+type ThanksResponse struct {
 	Thanks string `json:"thanks,omitempty"`
 
 	Change int32 `json:"change,omitempty"`
 }
 
-type InlineResponse400 struct {
+type ErrorResponse struct {
 	Error_ string `json:"error,omitempty"`
 }

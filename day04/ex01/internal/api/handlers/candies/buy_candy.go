@@ -5,7 +5,6 @@ import (
 	"BuyCandy/internal/api/response"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 )
 
@@ -25,30 +24,33 @@ func BuyCandy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("HELLO I AM HERE")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	change, err := CountChange(request.CandyType, int(request.CandyCount), int(request.Money))
+	change, err, statusCode := CountChange(request.CandyType, int(request.CandyCount), int(request.Money))
 	if err != nil {
-		w.WriteHeader(http.StatusPaymentRequired)
-		json.NewEncoder(w).Encode(response.InlineResponse400{
+		w.WriteHeader(statusCode)
+		json.NewEncoder(w).Encode(response.ErrorResponse{
 			Error_: err.Error(),
 		})
 	} else {
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(response.InlineResponse201{
+		w.WriteHeader(statusCode)
+		json.NewEncoder(w).Encode(response.ThanksResponse{
 			Thanks: "Thank you!",
 			Change: int32(change),
 		})
 	}
 }
 
-func CountChange(candyType string, candyCount int, money int) (change int, err error) {
+func CountChange(candyType string, candyCount int, money int) (change int, err error, code int) {
 	price := CandiesPrices[candyType]
 
-	if candyCount*price > money {
-		return 0, errors.New("not enough money")
+	if price == 0 {
+		return 0, errors.New("some error in input data"), http.StatusBadRequest
 	}
 
-	return money - candyCount*price, nil
+	if candyCount*price > money {
+		return 0, errors.New("not enough money"), http.StatusPaymentRequired
+	}
+
+	return money - candyCount*price, nil, http.StatusCreated
 }

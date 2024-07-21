@@ -1,7 +1,7 @@
 package request
 
 type BuyCandyRequestBody struct {
-	CandyCount int32  `json:"candyCount"`
+	CandyCount int    `json:"candyCount"`
 	CandyType  string `json:"candyType"`
-	Money      int32  `json:"money"`
+	Money      int    `json:"money"`
 }
