@@ -1,0 +1,23 @@
+// proto/transmitter.proto
+
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package transmitter;
+
+// Настройки для генерации Go кода.
+option go_package = ".;pb";
+
+service Transmitter {
+  rpc Transmit (TransmitRequest) returns (stream TransmitResponse);
+}
+
+message TransmitRequest {
+}
+
+message TransmitResponse {
+  string session_id = 1;
+  double frequency = 2;
+  int64 timestamp = 3;
+}
