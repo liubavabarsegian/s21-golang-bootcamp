@@ -1,7 +1,7 @@
 package test
 
 import (
-	tree "Tree/tree"
+	tree "day05/tree"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

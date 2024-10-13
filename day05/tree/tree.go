@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"container/list"
 	"fmt"
 	"strings"
 )
@@ -27,6 +28,52 @@ func (t *Tree) AreToysBalanced() bool {
 	}
 
 	return t.Root.Left.CountToys() == t.Root.Right.CountToys()
+}
+
+func (t *Tree) UnrollGarland() []bool {
+	if t.Root == nil {
+		return make([]bool, 0)
+	}
+
+	return t.Root.GetBoolValues()
+}
+
+func (n *TreeNode) GetBoolValues() []bool {
+	var results []bool
+	queue := list.New()
+	isOdd := true
+
+	queue.PushBack(n)
+	for queue.Len() > 0 {
+		size := queue.Len()
+		levelNodes := make([]bool, size)
+
+		for i := 0; i < size; i++ {
+			nodeElement := queue.Front()
+			queue.Remove(nodeElement)
+
+			// при извлечении достается элемент типа *list.Element, нужно привести к нужному типу
+			node := nodeElement.Value.(*TreeNode)
+
+			if isOdd {
+				levelNodes[size-1-i] = node.HasToy
+			} else {
+				levelNodes[i] = node.HasToy
+			}
+
+			if node.Left != nil {
+				queue.PushBack(node.Left)
+			}
+			if node.Right != nil {
+				queue.PushBack(node.Right)
+			}
+		}
+
+		results = append(results, levelNodes...)
+		isOdd = !isOdd
+	}
+
+	return results
 }
 
 func (n *TreeNode) Print(identation int) {
@@ -90,6 +137,7 @@ func (n *TreeNode) CountToys() (sum int) {
 	return
 }
 
+// EX00 MAIN
 // func main() {
 // 	treeTest := &Tree{}
 // 	treeTest.Insert(false)
@@ -100,4 +148,27 @@ func (n *TreeNode) CountToys() (sum int) {
 
 // 	treeTest.Root.Print(0)
 // 	fmt.Println(treeTest.Root.Right.CountToys())
+// }
+
+// EX01 MAIN
+// func main() {
+// 	//                    	  1
+// 	//                    	/  \
+// 	//                    1     0
+// 	//                    / \   / \
+// 	//                   1   0 1   1
+
+// 	//  [true, true, false, true, true, false, true]
+
+// 	treeTest := &Tree{}
+// 	treeTest.Insert(true)
+// 	treeTest.Root.InsertLeft(true)
+// 	treeTest.Root.InsertRight(false)
+// 	treeTest.Root.Left.InsertLeft(true)
+// 	treeTest.Root.Left.InsertRight(false)
+// 	treeTest.Root.Right.InsertLeft(true)
+// 	treeTest.Root.Right.InsertRight(true)
+
+// 	treeTest.Root.Print(0)
+// 	fmt.Println(treeTest.UnrollGarland())
 // }
