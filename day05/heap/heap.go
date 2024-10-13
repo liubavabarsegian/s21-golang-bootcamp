@@ -3,6 +3,8 @@ package heap
 import (
 	"container/heap"
 	"errors"
+	"math"
+	"reflect"
 )
 
 type Present struct {
@@ -60,3 +62,86 @@ func (p *PresentHeap) GetNCoolestPresents(n int) ([]Present, error) {
 
 	return coolestPresents, nil
 }
+
+func (p PresentHeap) GrabPresents(maxSize int) (profitPresents PresentHeap) {
+	if maxSize <= 0 {
+		return PresentHeap{}
+	}
+
+	weightsLen := p.Len()
+	table := make([][]int, weightsLen+1)
+	for i := range table {
+		table[i] = make([]int, maxSize+1)
+	}
+
+	for i := 0; i <= weightsLen; i++ {
+		for j := 0; j <= maxSize; j++ {
+			if i == 0 || j == 0 {
+				table[i][j] = 0
+			} else {
+				if p[i-1].Size > j {
+					table[i][j] = table[i-1][j]
+				} else {
+					table[i][j] = max(table[i-1][j], table[i-1][j-p[i-1].Size]+p[i-1].Value)
+				}
+			}
+		}
+	}
+
+	tracePresents(table, weightsLen, maxSize, &p, &profitPresents)
+	return profitPresents
+}
+
+func tracePresents(table [][]int, i, j int, presents, profitPresents *PresentHeap) {
+	if table[i][j] == 0 {
+		return
+	}
+
+	if table[i-1][j] == table[i][j] {
+		tracePresents(table, i-1, j, presents, profitPresents)
+	} else {
+		tracePresents(table, i-1, j-(*presents)[i-1].Size, presents, profitPresents)
+		*profitPresents = append(*profitPresents, (*presents)[i-1])
+	}
+}
+
+func max(a, b int) int {
+	return int(math.Max(float64(a), float64(b)))
+}
+
+func AreEqual(a, b PresentHeap) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	// Create maps to count occurrences of each Present
+	countMapA := make(map[Present]int)
+	countMapB := make(map[Present]int)
+
+	for _, present := range a {
+		countMapA[present]++
+	}
+
+	for _, present := range b {
+		countMapB[present]++
+	}
+
+	return reflect.DeepEqual(countMapA, countMapB)
+}
+
+// func main() {
+// 	presents := PresentHeap{
+// 		{Value: 5, Size: 1},
+// 		{Value: 4, Size: 3},
+// 		{Value: 3, Size: 2},
+// 		{Value: 6, Size: 4},
+// 	}
+
+// 	capacity := 5
+// 	result := presents.GrabPresents(capacity)
+
+// 	fmt.Println("Выбранные подарки:")
+// 	for _, p := range result {
+// 		fmt.Printf("Value: %d, Size: %d\n", p.Value, p.Size)
+// 	}
+// }
